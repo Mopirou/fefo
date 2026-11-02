@@ -4,8 +4,15 @@ import Products from './views/Products.vue';
 import Receiving from './views/Receiving.vue';
 import Stock from './views/Stock.vue';
 import Inventory from './views/Inventory.vue';
+import Batches from './views/Batches.vue';
+import Recipes from './views/Recipes.vue';
+import Settings from './views/Settings.vue';
 
-const TABS = [['stock', 'Stock', Stock], ['reception', 'Réception', Receiving], ['inventaire', 'Inventaire', Inventory], ['produits', 'Produits', Products]];
+const TABS = [
+    ['stock', 'Stock', Stock], ['reception', 'Réception', Receiving], ['lots', 'Préparations', Batches],
+    ['recettes', 'Recettes', Recipes], ['inventaire', 'Inventaire', Inventory],
+    ['produits', 'Produits', Products], ['reglages', 'Réglages', Settings],
+];
 const tab = ref('stock');
 const prefillEan = ref('');
 

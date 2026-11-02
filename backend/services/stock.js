@@ -1,4 +1,4 @@
-const { httpError } = require('../utils/http');
+const { httpError, tx } = require('../utils/http');
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 // Max reception temperature per product temperature class (warning only).
@@ -44,20 +44,15 @@ function receive(db, input) {
         warnings.push(`Temperature a reception ${recvTemp} C superieure a ${max} C: envisager de refuser le lot`);
     }
 
-    db.exec('BEGIN');
-    try {
+    return tx(db, () => {
         const info = db.prepare(
             `INSERT INTO lot (product_id, lot_no, dlc, recv_temp, conform, note)
              VALUES (?, ?, ?, ?, ?, ?)`
         ).run(product.id, input.lot_no || null, dlc, recvTemp, conform, input.note || null);
         db.prepare(`INSERT INTO stock_move (lot_id, delta, reason) VALUES (?, ?, 'receipt')`)
             .run(info.lastInsertRowid, qty);
-        db.exec('COMMIT');
         return { lot: getLot(db, info.lastInsertRowid), warnings };
-    } catch (err) {
-        db.exec('ROLLBACK');
-        throw err;
-    }
+    });
 }
 
 function getLot(db, id) {
@@ -82,9 +77,8 @@ function fefoConsume(db, productId, qty, { reason = 'manual', ref = null, today,
     if (total < remaining) throw httpError(409, `Stock insuffisant: ${total} disponible, ${remaining} demande`);
 
     const insert = db.prepare('INSERT INTO stock_move (lot_id, delta, reason, ref) VALUES (?, ?, ?, ?)');
-    const taken = [];
-    db.exec('BEGIN');
-    try {
+    return tx(db, () => {
+        const taken = [];
         for (const lot of lots) {
             if (remaining <= 0) break;
             const take = Math.min(lot.qty, remaining);
@@ -92,12 +86,8 @@ function fefoConsume(db, productId, qty, { reason = 'manual', ref = null, today,
             taken.push({ lot_id: lot.id, lot_no: lot.lot_no, dlc: lot.dlc, qty: take });
             remaining -= take;
         }
-        db.exec('COMMIT');
-    } catch (err) {
-        db.exec('ROLLBACK');
-        throw err;
-    }
-    return taken;
+        return taken;
+    });
 }
 
 // One row per product: total available quantity (conform lots only) and nearest DLC.
@@ -135,9 +125,8 @@ function alerts(db, today = dayString()) {
 // surplus becomes an undated 'inventory' lot. Every count is logged with its gap.
 function applyInventory(db, counts) {
     if (!Array.isArray(counts) || !counts.length) throw httpError(400, 'counts requis');
-    const results = [];
-    db.exec('BEGIN');
-    try {
+    return tx(db, () => {
+        const results = [];
         for (const c of counts) {
             getProduct(db, c.product_id);
             const counted = Number(c.counted);
@@ -161,12 +150,8 @@ function applyInventory(db, counts) {
                 .run(c.product_id, theoretical, counted, gap);
             results.push({ product_id: c.product_id, theoretical, counted, gap });
         }
-        db.exec('COMMIT');
-    } catch (err) {
-        db.exec('ROLLBACK');
-        throw err;
-    }
-    return results;
+        return results;
+    });
 }
 
 module.exports = { dayString, receive, getLot, availableLots, fefoConsume, stockSummary, alerts, applyInventory };
