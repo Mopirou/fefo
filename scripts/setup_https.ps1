@@ -10,11 +10,21 @@ $ip = (Get-NetIPAddress -AddressFamily IPv4 |
     Select-Object -First 1).IPAddress
 Write-Host "IP locale detectee: $ip"
 
-mkcert -install
-mkcert -key-file (Join-Path $certs 'key.pem') -cert-file (Join-Path $certs 'cert.pem') localhost 127.0.0.1 $ip $env:COMPUTERNAME
+# winget installs mkcert but a terminal opened before (or even after) that may not have it
+# on its PATH: fall back to the winget packages folder.
+$mkcert = (Get-Command mkcert -ErrorAction SilentlyContinue).Source
+if (-not $mkcert) {
+    $mkcert = Get-ChildItem (Join-Path $env:LOCALAPPDATA 'Microsoft\WinGet\Packages') -Recurse -Filter 'mkcert*.exe' -ErrorAction SilentlyContinue |
+        Select-Object -First 1 -ExpandProperty FullName
+}
+if (-not $mkcert) { throw "mkcert introuvable. Installer avec: winget install FiloSottile.mkcert" }
+Write-Host "mkcert: $mkcert"
+
+& $mkcert -install
+& $mkcert -key-file (Join-Path $certs 'key.pem') -cert-file (Join-Path $certs 'cert.pem') localhost 127.0.0.1 $ip $env:COMPUTERNAME
 
 Write-Host ""
 Write-Host "Certificat genere dans $certs"
-Write-Host "Telephone: copier le fichier rootCA.pem situe dans $(mkcert -CAROOT) et l'installer"
+Write-Host "Telephone: copier le fichier rootCA.pem situe dans $(& $mkcert -CAROOT) et l'installer"
 Write-Host "(Android: Parametres > Securite > Installer un certificat CA. iPhone: installer le profil puis Reglages > General > Informations > Reglages des certificats > activer).
 Puis ouvrir https://${ip}:3100"
