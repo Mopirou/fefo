@@ -39,7 +39,7 @@ onMounted(load);
 
         <div v-for="r in rows" :key="r.product_id">
             <div class="card" @click="toggle(r)">
-                <div class="grow"><strong>{{ r.name }}</strong><div class="muted">prochaine DLC : {{ r.next_dlc || '—' }}</div></div>
+                <div class="grow"><strong>{{ r.name }}</strong><div class="muted"><span v-if="r.article && r.article !== r.name">{{ r.article }} · </span><span v-if="r.supplier">{{ r.supplier }} · </span>prochaine DLC : {{ r.next_dlc || '—' }}</div></div>
                 <strong>{{ r.qty }} {{ r.unit }}</strong>
             </div>
             <div v-if="open === r.product_id" class="lots">

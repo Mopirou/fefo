@@ -1,9 +1,22 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { api } from '../api';
 
 const recipes = ref([]);
 const products = ref([]);
+// One choice per article: the cook picks the actual reference (Aldi, Metro...) at manufacture time.
+const ingredientChoices = computed(() => {
+    const seen = new Map();
+    for (const p of products.value) {
+        const key = p.article_id ? `a${p.article_id}` : `p${p.id}`;
+        if (!seen.has(key)) seen.set(key, { id: p.id, label: p.article || p.name, unit: p.unit, key });
+    }
+    return [...seen.values()];
+});
+const repOf = (productId) => {
+    const p = products.value.find(x => x.id === productId);
+    return p?.article_id ? products.value.find(x => x.article_id === p.article_id).id : productId;
+};
 const editing = ref(null);
 const error = ref('');
 
@@ -13,6 +26,7 @@ async function load() { recipes.value = await api.recipes(); }
 async function edit(r) {
     error.value = '';
     editing.value = r ? await api.recipe(r.id) : blank();
+    for (const it of editing.value.items) it.product_id = repOf(it.product_id);
 }
 async function save() {
     error.value = '';
@@ -42,7 +56,7 @@ onMounted(async () => { products.value = await api.listProducts(); load(); });
             <div v-for="(it, i) in editing.items" :key="i" class="full row">
                 <select v-model="it.product_id" required>
                     <option value="" disabled>Produit…</option>
-                    <option v-for="p in products" :key="p.id" :value="p.id">{{ p.name }} ({{ p.unit }})</option>
+                    <option v-for="c in ingredientChoices" :key="c.key" :value="c.id">{{ c.label }} ({{ c.unit }})</option>
                 </select>
                 <input v-model.number="it.qty" type="number" step="any" min="0" required style="width: 6rem" />
                 <button type="button" @click="editing.items.splice(i, 1)">✕</button>

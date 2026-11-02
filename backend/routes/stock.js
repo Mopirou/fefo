@@ -9,6 +9,10 @@ module.exports = (db) => {
         res.status(201).json(stock.receive(db, req.body));
     }));
 
+    router.get('/receipts/refused', wrap((req, res) => {
+        res.json(stock.refusedReceipts(db));
+    }));
+
     router.get('/stock', wrap((req, res) => {
         res.json(stock.stockSummary(db));
     }));

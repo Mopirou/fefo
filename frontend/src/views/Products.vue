@@ -7,9 +7,10 @@ const props = defineProps({ prefillEan: { type: String, default: '' } });
 
 const CATEGORIES = [['boisson', 'Boisson'], ['ingredient', 'Ingrédient'], ['consommable', 'Consommable']];
 const TEMPS = [['ambiant', 'Ambiant'], ['positif_3', '0 à +3 °C'], ['positif_4', '+4 °C max'], ['positif_8', '+8 °C max'], ['surgele', 'Surgelé -18 °C']];
-const empty = () => ({ name: '', category: 'boisson', unit: 'unite', ean: '', supplier: '', buy_ht: 0, sell_ht: 0, allergens: '', temp_class: 'ambiant', favorite: false, min_stock: 0 });
+const empty = () => ({ name: '', category: 'boisson', unit: 'unite', ean: '', article: '', supplier: '', buy_ht: 0, sell_ht: 0, allergens: '', temp_class: 'ambiant', favorite: false, min_stock: 0 });
 
 const products = ref([]);
+const articles = ref([]);
 const q = ref('');
 const onlyFav = ref(false);
 const editing = ref(null);
@@ -17,6 +18,7 @@ const error = ref('');
 
 async function load() {
     products.value = await api.listProducts({ ...(q.value && { q: q.value }), ...(onlyFav.value && { favorite: 1 }) });
+    articles.value = [...new Set((await api.listProducts()).map(p => p.article).filter(Boolean))].sort((a, b) => a.localeCompare(b));
 }
 async function save() {
     error.value = '';
@@ -51,6 +53,10 @@ onMounted(() => {
         <div class="bar"><button class="primary" @click="open()">+ Produit</button></div>
         <form v-if="editing" @submit.prevent="save">
             <label class="full">Nom<input v-model="editing.name" required /></label>
+            <label class="full">Article (famille, ex. « Citron »)
+                <input v-model="editing.article" list="articles" placeholder="Laisser vide si le produit est unique" />
+                <datalist id="articles"><option v-for="a in articles" :key="a" :value="a" /></datalist>
+            </label>
             <label>Catégorie<select v-model="editing.category"><option v-for="[v, l] in CATEGORIES" :key="v" :value="v">{{ l }}</option></select></label>
             <label>Unité<input v-model="editing.unit" /></label>
             <label>EAN (facultatif)<input v-model="editing.ean" inputmode="numeric" /></label>
@@ -78,7 +84,7 @@ onMounted(() => {
             <button class="star" @click.stop="toggleFav(p)">{{ p.favorite ? '★' : '☆' }}</button>
             <div class="grow">
                 <strong>{{ p.name }}</strong>
-                <div class="muted">{{ p.category }} · {{ p.unit }}<span v-if="p.ean"> · {{ p.ean }}</span></div>
+                <div class="muted"><span v-if="p.article">{{ p.article }} · </span>{{ p.category }} · {{ p.unit }}<span v-if="p.supplier"> · {{ p.supplier }}</span><span v-if="p.ean"> · {{ p.ean }}</span></div>
             </div>
             <div class="muted">{{ p.sell_ht.toFixed(2) }} € HT</div>
         </div>

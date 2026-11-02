@@ -27,9 +27,24 @@ test('cold product needs a DLC, bad date and qty rejected', async () => {
     await recv({ qty: 0, dlc: day(2) }).expect(400);
 });
 
-test('warns when reception temperature is too high', async () => {
-    const r = await recv({ qty: 1, dlc: day(3), recv_temp: 7 }).expect(201);
+test('reception too warm is refused automatically and kept in the history', async () => {
+    const r = await recv({ qty: 6, dlc: day(3), recv_temp: 7, lot_no: 'hot' }).expect(201);
+    expect(r.body.refused).toBe(true);
     expect(r.body.warnings).toHaveLength(1);
+    expect(r.body.lot.conform).toBe(0);
+    expect((await request(app).get('/api/stock')).body.find(x => x.product_id === pid).qty).toBe(0);
+    const h = (await request(app).get('/api/receipts/refused')).body;
+    expect(h).toHaveLength(1);
+    expect(h[0]).toMatchObject({ lot_no: 'hot', recv_temp: 7, refusal_reason: 'temperature', max_temp: 4, qty: 6 });
+});
+
+test('reception within limits is accepted and manual refusal is logged', async () => {
+    const ok = await recv({ qty: 2, dlc: day(3), recv_temp: 4 }).expect(201);
+    expect(ok.body.refused).toBe(false);
+    const manual = await recv({ qty: 1, dlc: day(3), conform: false, note: 'emballage abime' }).expect(201);
+    expect(manual.body.refused).toBe(true);
+    const h = (await request(app).get('/api/receipts/refused')).body;
+    expect(h.map(r => r.refusal_reason)).toEqual(['manuel']);
 });
 
 test('FEFO consumes the earliest DLC first across lots', async () => {

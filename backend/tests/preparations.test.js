@@ -112,3 +112,26 @@ test('recipe used by a batch cannot be deleted', async () => {
     await make().expect(201);
     await request(app).delete(`/api/recipes/${recipe.id}`).expect(409);
 });
+
+test('ingredient references of one article are offered and the chosen one is consumed', async () => {
+    const aldi = (await request(app).post('/api/products').send({ name: 'Citron Aldi', article: 'Citron', category: 'ingredient', temp_class: 'positif_8', supplier: 'Aldi' }).expect(201)).body;
+    const metro = (await request(app).post('/api/products').send({ name: 'Citron Metro', article: 'citron', category: 'ingredient', temp_class: 'positif_8', supplier: 'Metro' }).expect(201)).body;
+    expect(aldi.article_id).toBe(metro.article_id);
+    await request(app).post('/api/receipts').send({ product_id: aldi.id, qty: 5, dlc: day(6), lot_no: 'ALDI1' });
+    await request(app).post('/api/receipts').send({ product_id: metro.id, qty: 5, dlc: day(3), lot_no: 'METRO1' });
+    const r = (await request(app).post('/api/recipes').send({
+        name: 'Citronnade', yield_qty: 1, unit: 'L', items: [{ product_id: aldi.id, qty: 2 }],
+    }).expect(201)).body;
+
+    const opts = (await request(app).get(`/api/recipes/${r.id}/options`).expect(200)).body;
+    expect(opts[0].name).toBe('Citron');
+    expect(opts[0].options.map(o => [o.name, o.qty])).toEqual([['Citron Metro', 5], ['Citron Aldi', 5]]);
+
+    const b = (await request(app).post('/api/batches').send({ recipe_id: r.id, choices: { [aldi.id]: metro.id } }).expect(201)).body.batch;
+    expect(b.sources.map(s => s.product_name)).toEqual(['Citron Metro']);
+    const stk = (await request(app).get('/api/stock')).body;
+    expect(stk.find(s => s.product_id === metro.id).qty).toBe(3);
+    expect(stk.find(s => s.product_id === aldi.id).qty).toBe(5);
+
+    await request(app).post('/api/batches').send({ recipe_id: r.id, choices: { [aldi.id]: sucre } }).expect(400);
+});

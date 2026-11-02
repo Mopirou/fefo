@@ -1,5 +1,5 @@
 const { httpError, tx } = require('../utils/http');
-const { dayString, fefoConsume } = require('./stock');
+const { dayString, fefoConsume, productOptions } = require('./stock');
 const { getRecipe } = require('./recipes');
 const { getSetting } = require('./settings');
 
@@ -26,6 +26,25 @@ function getBatch(db, id) {
 
 function listBatches(db) {
     return db.prepare(`${BATCH_SQL} ORDER BY b.id DESC LIMIT 200`).all();
+}
+
+// Ingredients of a recipe, each with the references the cook can choose from.
+function recipeOptions(db, recipeId) {
+    return getRecipe(db, recipeId).items.map(it => {
+        const art = db.prepare('SELECT a.name FROM product p JOIN article a ON a.id = p.article_id WHERE p.id = ?').get(it.product_id);
+        return { product_id: it.product_id, name: art?.name ?? it.name, qty: it.qty, unit: it.unit, options: productOptions(db, it.product_id) };
+    });
+}
+
+// The reference actually used for an ingredient: the one the cook chose, which must
+// belong to the same article as the recipe's ingredient.
+function chosenProduct(db, item, choices) {
+    const raw = choices?.[item.product_id];
+    if (raw === undefined || raw === null || raw === '' || Number(raw) === item.product_id) return item.product_id;
+    if (!productOptions(db, item.product_id).some(o => o.product_id === Number(raw))) {
+        throw httpError(400, `Produit ${raw} ne correspond pas a l'ingredient ${item.name}`);
+    }
+    return Number(raw);
 }
 
 // Rule: DLC of a chilled preparation is at most `prep_dlc_max_days` after the day of
@@ -56,7 +75,7 @@ function createBatch(db, input, { now = new Date() } = {}) {
         const addSource = db.prepare('INSERT INTO prep_batch_source (batch_id, lot_id, qty) VALUES (?, ?, ?)');
         for (const item of recipe.items) {
             const needed = item.qty * qty / recipe.yield_qty;
-            const taken = fefoConsume(db, item.product_id, needed, { reason: 'prep_use', ref: `batch:${batchId}`, today });
+            const taken = fefoConsume(db, chosenProduct(db, item, input.choices), needed, { reason: 'prep_use', ref: `batch:${batchId}`, today });
             for (const t of taken) addSource.run(batchId, t.lot_id, t.qty);
         }
         db.prepare(`INSERT INTO stock_move (lot_id, delta, reason, ref) VALUES (?, ?, 'prep_out', ?)`)
@@ -104,4 +123,4 @@ function batchAllergens(db, id) {
     return [...set].sort();
 }
 
-module.exports = { getBatch, listBatches, createBatch, freeze, thaw, batchAllergens };
+module.exports = { recipeOptions, getBatch, listBatches, createBatch, freeze, thaw, batchAllergens };

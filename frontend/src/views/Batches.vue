@@ -7,6 +7,7 @@ const recipes = ref([]);
 const batches = ref([]);
 const settings = ref({ prep_dlc_max_days: 3, printer: '' });
 const form = ref(null);
+const ingredients = ref([]);
 const message = ref('');
 const error = ref('');
 
@@ -22,12 +23,22 @@ async function load() {
 function start() {
     error.value = ''; message.value = '';
     const r = recipes.value[0];
-    form.value = { recipe_id: r?.id ?? '', qty: r?.yield_qty ?? 1, dlc: iso(r?.default_dlc_days ?? 3), justification: '', print: !!settings.value.printer };
+    form.value = { recipe_id: r?.id ?? '', qty: r?.yield_qty ?? 1, dlc: iso(r?.default_dlc_days ?? 3), justification: '', print: !!settings.value.printer, choices: {} };
+    loadIngredients();
 }
 function onRecipe() {
     const r = recipes.value.find(x => x.id === form.value.recipe_id);
     form.value.qty = r.yield_qty;
     form.value.dlc = iso(r.default_dlc_days);
+    loadIngredients();
+}
+// Each ingredient lists the references in stock (Aldi, Metro...): the one expiring first is preselected.
+async function loadIngredients() {
+    const id = form.value.recipe_id;
+    const list = await api.recipeOptions(id);
+    if (form.value?.recipe_id !== id) return;
+    ingredients.value = list;
+    form.value.choices = Object.fromEntries(list.map(i => [i.product_id, (i.options.find(o => o.qty > 0) || i.options[0]).product_id]));
 }
 async function create() {
     error.value = '';
@@ -59,6 +70,13 @@ onMounted(load);
         <form v-if="form" @submit.prevent="create">
             <label class="full">Recette
                 <select v-model="form.recipe_id" @change="onRecipe"><option v-for="r in recipes" :key="r.id" :value="r.id">{{ r.name }}</option></select>
+            </label>
+            <label v-for="i in ingredients" :key="i.product_id" class="full">{{ i.name }} <span class="muted">({{ i.qty }} {{ i.unit }})</span>
+                <select v-model="form.choices[i.product_id]">
+                    <option v-for="o in i.options" :key="o.product_id" :value="o.product_id" :disabled="o.qty <= 0">
+                        {{ o.name }}{{ o.supplier ? ' · ' + o.supplier : '' }} — {{ o.qty > 0 ? `${o.qty} ${o.unit} en stock${o.next_dlc ? ', DLC ' + o.next_dlc : ''}` : 'rupture' }}
+                    </option>
+                </select>
             </label>
             <label>Quantité produite<input v-model.number="form.qty" type="number" step="any" min="0" required /></label>
             <label>DLC<input v-model="form.dlc" type="date" :min="iso(0)" required /></label>

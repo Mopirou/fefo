@@ -31,8 +31,18 @@ function validate(body) {
     return { errors, value };
 }
 
+const SELECT = 'SELECT p.*, a.name AS article FROM product p LEFT JOIN article a ON a.id = p.article_id';
+
 const COLUMNS = ['name', 'category', 'unit', 'ean', 'supplier', 'buy_ht', 'sell_ht',
-    'allergens', 'temp_class', 'favorite', 'min_stock'];
+    'allergens', 'temp_class', 'favorite', 'min_stock', 'article_id'];
+
+// Article name -> id, created on the fly. Blank = standalone product (null).
+function articleId(db, name) {
+    const n = String(name ?? '').trim();
+    if (!n) return null;
+    db.prepare('INSERT OR IGNORE INTO article (name) VALUES (?)').run(n);
+    return db.prepare('SELECT id FROM article WHERE name = ?').get(n).id;
+}
 
 module.exports = (db) => {
     const wrap = (fn) => (req, res) => {
@@ -56,26 +66,26 @@ module.exports = (db) => {
             const where = [];
             const params = [];
             if (q) {
-                where.push('(name LIKE ? OR ean = ?)');
-                params.push(`%${q}%`, q);
+                where.push('(p.name LIKE ? OR a.name LIKE ? OR p.ean = ?)');
+                params.push(`%${q}%`, `%${q}%`, q);
             }
-            if (favorite === '1') where.push('favorite = 1');
+            if (favorite === '1') where.push('p.favorite = 1');
             if (category) {
-                where.push('category = ?');
+                where.push('p.category = ?');
                 params.push(category);
             }
-            const sql = `SELECT * FROM product${where.length ? ' WHERE ' + where.join(' AND ') : ''} ORDER BY name COLLATE NOCASE`;
+            const sql = `${SELECT}${where.length ? ' WHERE ' + where.join(' AND ') : ''} ORDER BY p.name COLLATE NOCASE`;
             res.json(db.prepare(sql).all(...params));
         }),
 
         get: wrap((req, res) => {
-            const row = db.prepare('SELECT * FROM product WHERE id = ?').get(req.params.id);
+            const row = db.prepare(`${SELECT} WHERE p.id = ?`).get(req.params.id);
             if (!row) return res.status(404).json({ error: 'Produit introuvable' });
             res.json(row);
         }),
 
         byEan: wrap((req, res) => {
-            const row = db.prepare('SELECT * FROM product WHERE ean = ?').get(req.params.ean);
+            const row = db.prepare(`${SELECT} WHERE p.ean = ?`).get(req.params.ean);
             if (!row) return res.status(404).json({ error: 'EAN inconnu' });
             res.json(row);
         }),
@@ -83,20 +93,25 @@ module.exports = (db) => {
         create: wrap((req, res) => {
             const { errors, value } = validate(req.body);
             if (errors.length) return res.status(400).json({ errors });
+            value.article_id = articleId(db, req.body.article);
             const info = db.prepare(
                 `INSERT INTO product (${COLUMNS.join(', ')}) VALUES (${COLUMNS.map(() => '?').join(', ')})`
             ).run(...COLUMNS.map(c => value[c]));
-            res.status(201).json(db.prepare('SELECT * FROM product WHERE id = ?').get(info.lastInsertRowid));
+            res.status(201).json(db.prepare(`${SELECT} WHERE p.id = ?`).get(info.lastInsertRowid));
         }),
 
         update: wrap((req, res) => {
             const { errors, value } = validate(req.body);
             if (errors.length) return res.status(400).json({ errors });
+            // Callers that do not send `article` leave the product's article untouched.
+            const withArticle = 'article' in req.body;
+            const cols = withArticle ? COLUMNS : COLUMNS.filter(c => c !== 'article_id');
+            if (withArticle) value.article_id = articleId(db, req.body.article);
             const info = db.prepare(
-                `UPDATE product SET ${COLUMNS.map(c => `${c} = ?`).join(', ')} WHERE id = ?`
-            ).run(...COLUMNS.map(c => value[c]), req.params.id);
+                `UPDATE product SET ${cols.map(c => `${c} = ?`).join(', ')} WHERE id = ?`
+            ).run(...cols.map(c => value[c]), req.params.id);
             if (!info.changes) return res.status(404).json({ error: 'Produit introuvable' });
-            res.json(db.prepare('SELECT * FROM product WHERE id = ?').get(req.params.id));
+            res.json(db.prepare(`${SELECT} WHERE p.id = ?`).get(req.params.id));
         }),
 
         // Hard delete is refused once stock/lots reference the product (added in stage 2).

@@ -11,7 +11,8 @@ module.exports = (db, { printDriver } = {}) => {
     const id = (req) => Number(req.params.id);
 
     router.get('/recipes', wrap((req, res) => res.json(recipes.listRecipes(db))));
-    router.get('/recipes/:id', wrap((req, res) => res.json(recipes.getRecipe(db, id(req)))));
+    router.get('/recipes/:id/options', wrap((req, res) => res.json(batches.recipeOptions(db, id(req)))));
+    router.get('/recipes/:id',wrap((req, res) => res.json(recipes.getRecipe(db, id(req)))));
     router.post('/recipes', wrap((req, res) => res.status(201).json(recipes.saveRecipe(db, req.body))));
     router.put('/recipes/:id', wrap((req, res) => res.json(recipes.saveRecipe(db, req.body, id(req)))));
     router.delete('/recipes/:id', wrap((req, res) => { recipes.deleteRecipe(db, id(req)); res.status(204).end(); }));
