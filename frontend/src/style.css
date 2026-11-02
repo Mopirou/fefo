@@ -1,0 +1,22 @@
+:root { --c: #0f766e; --bg: #f8fafc; --bd: #cbd5e1; }
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, sans-serif; background: var(--bg); color: #0f172a; }
+header { background: var(--c); color: #fff; padding: .75rem 1rem; display: flex; gap: .5rem; align-items: center; }
+header h1 { font-size: 1.1rem; margin: 0; flex: 1; }
+main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+input, select, button { font: inherit; padding: .55rem .7rem; border: 1px solid var(--bd); border-radius: 8px; background: #fff; }
+button { cursor: pointer; }
+button.primary { background: var(--c); color: #fff; border-color: var(--c); }
+button.danger { color: #b91c1c; }
+.bar { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+.bar input[type=search] { flex: 1; min-width: 160px; }
+.card { background: #fff; border: 1px solid var(--bd); border-radius: 10px; padding: .7rem .9rem; margin-bottom: .5rem; display: flex; gap: .75rem; align-items: center; cursor: pointer; }
+.card .grow { flex: 1; }
+.muted { color: #64748b; font-size: .85rem; }
+.star { background: none; border: none; font-size: 1.3rem; padding: 0; }
+form { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; background: #fff; border: 1px solid var(--bd); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+form label { display: flex; flex-direction: column; font-size: .8rem; gap: .2rem; }
+form .full { grid-column: 1 / -1; }
+form .actions { display: flex; gap: .5rem; }
+.err { color: #b91c1c; grid-column: 1 / -1; font-size: .9rem; }
+@media (max-width: 520px) { form { grid-template-columns: 1fr; } }
