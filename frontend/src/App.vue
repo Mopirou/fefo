@@ -7,10 +7,14 @@ import Inventory from './views/Inventory.vue';
 import Batches from './views/Batches.vue';
 import Recipes from './views/Recipes.vue';
 import Settings from './views/Settings.vue';
+import Sales from './views/Sales.vue';
+import Losses from './views/Losses.vue';
+import Dashboard from './views/Dashboard.vue';
 
 const TABS = [
     ['stock', 'Stock', Stock], ['reception', 'Réception', Receiving], ['lots', 'Préparations', Batches],
-    ['recettes', 'Recettes', Recipes], ['inventaire', 'Inventaire', Inventory],
+    ['recettes', 'Recettes', Recipes], ['ventes', 'Ventes', Sales], ['pertes', 'Pertes', Losses],
+    ['bord', 'Tableau de bord', Dashboard], ['inventaire', 'Inventaire', Inventory],
     ['produits', 'Produits', Products], ['reglages', 'Réglages', Settings],
 ];
 const tab = ref('stock');

@@ -13,6 +13,7 @@ function createApp(db, options = {}) {
     app.use('/api/products', require('./routes/products')(db));
     app.use('/api', require('./routes/stock')(db));
     app.use('/api', require('./routes/preparations')(db, options));
+    app.use('/api', require('./routes/business')(db));
 
     // Production: serve the built Vue app from the same HTTPS origin.
     const dist = path.join(__dirname, '..', 'frontend', 'dist');

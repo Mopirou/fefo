@@ -6,6 +6,8 @@ async function call(method, url, body) {
     });
     if (res.status === 204) return null;
     const data = await res.json().catch(() => ({}));
+    // CSV import answers 422 with a line-by-line error list: let the caller show it.
+    if (res.status === 422 && data.errors?.[0]?.line) return data;
     if (!res.ok) throw new Error((data.errors || [data.error]).filter(Boolean).join(', ') || `Erreur ${res.status}`);
     return data;
 }
@@ -31,6 +33,13 @@ export const api = {
     freeze: (id) => call('POST', `/api/batches/${id}/freeze`),
     thaw: (id) => call('POST', `/api/batches/${id}/thaw`),
     printBatch: (id) => call('POST', `/api/batches/${id}/print`),
+    sales: (p = {}) => call('GET', '/api/sales?' + new URLSearchParams(p)),
+    createSales: (s) => call('POST', '/api/sales', s),
+    importSales: (s) => call('POST', '/api/sales/import', s),
+    losses: (p = {}) => call('GET', '/api/losses?' + new URLSearchParams(p)),
+    lossReasons: () => call('GET', '/api/losses/reasons'),
+    createLoss: (l) => call('POST', '/api/losses', l),
+    dashboard: (p) => call('GET', '/api/dashboard?' + new URLSearchParams(p)),
     settings: () => call('GET', '/api/settings'),
     saveSettings: (s) => call('PUT', '/api/settings', s),
     printers: () => call('GET', '/api/printers'),
