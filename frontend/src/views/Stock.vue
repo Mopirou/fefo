@@ -43,7 +43,7 @@ onMounted(load);
                 <strong>{{ r.qty }} {{ r.unit }}</strong>
             </div>
             <div v-if="open === r.product_id" class="lots">
-                <div v-for="l in lots" :key="l.id" class="muted">lot {{ l.lot_no || l.id }} · DLC {{ l.dlc || '—' }} · {{ l.qty }}{{ l.conform ? '' : ' · NON CONFORME' }}</div>
+                <div v-for="l in lots" :key="l.id" class="muted">lot {{ l.lot_no || l.id }} · DLC {{ l.dlc || '—' }} · {{ l.qty }}{{ l.conform ? '' : ' · NON CONFORME' }} · <a :href="`/api/lots/${l.id}/trace.pdf`" target="_blank">traçabilité</a></div>
                 <div v-if="!lots.length" class="muted">Aucun lot en stock.</div>
             </div>
         </div>

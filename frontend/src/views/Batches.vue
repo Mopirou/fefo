@@ -77,6 +77,7 @@ onMounted(load);
             <button v-if="b.state === 'frozen'" @click="act(api.thaw, b)">Décongeler</button>
             <button @click="print(b)">🖨</button>
             <a :href="`/api/batches/${b.id}/label.pdf`" target="_blank">PDF</a>
+            <a :href="`/api/batches/${b.id}/trace.pdf`" target="_blank">Traçabilité</a>
         </div>
     </main>
 </template>

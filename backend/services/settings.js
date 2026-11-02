@@ -4,6 +4,9 @@ const { httpError } = require('../utils/http');
 const SCHEMA = {
     prep_dlc_max_days: { default: 3, min: 1, max: 30, label: 'DLC maximale d\'une preparation (jours)' },
     thaw_dlc_hours: { default: 24, min: 1, max: 48, label: 'DLC apres decongelation (heures, max 48)' },
+    cooling_max_minutes: { default: 120, min: 10, max: 600, label: 'Refroidissement rapide: duree max (minutes)' },
+    cooling_target_temp: { default: 10, min: 0, max: 30, label: 'Refroidissement rapide: temperature a atteindre (C)' },
+    establishment: { default: '', label: 'Nom de l\'etablissement (en-tete des exports)' },
     printer: { default: '', label: 'Imprimante d\'etiquettes' },
 };
 

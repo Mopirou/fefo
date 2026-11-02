@@ -10,11 +10,12 @@ import Settings from './views/Settings.vue';
 import Sales from './views/Sales.vue';
 import Losses from './views/Losses.vue';
 import Dashboard from './views/Dashboard.vue';
+import Registers from './views/Registers.vue';
 
 const TABS = [
     ['stock', 'Stock', Stock], ['reception', 'Réception', Receiving], ['lots', 'Préparations', Batches],
     ['recettes', 'Recettes', Recipes], ['ventes', 'Ventes', Sales], ['pertes', 'Pertes', Losses],
-    ['bord', 'Tableau de bord', Dashboard], ['inventaire', 'Inventaire', Inventory],
+    ['registres', 'Registres', Registers], ['bord', 'Tableau de bord', Dashboard], ['inventaire', 'Inventaire', Inventory],
     ['produits', 'Produits', Products], ['reglages', 'Réglages', Settings],
 ];
 const tab = ref('stock');

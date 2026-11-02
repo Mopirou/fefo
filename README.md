@@ -29,6 +29,7 @@ cd frontend && npm run dev      # interface
 - Étape 2 : scan caméra (html5-qrcode, EAN-13/8 + QR) et favoris, réception (lot, DLC, température, conformité), stock par lot avec sortie FEFO, alertes (stock bas, DLC J-1 / J / périmé), inventaire rapide avec écart. Un EAN inconnu scanné ouvre la fiche produit pré-remplie. Un lot non conforme est enregistré mais jamais proposé en sortie.
 - Étape 3 : recettes, fabrication de lots (ingrédients déduits en FEFO, lots sources enregistrés, DLC = +3 j max sauf justification), congélation (avant la DLC) et décongélation (nouvelle DLC, recongélation interdite), étiquette (impression directe via le spouleur Windows ou CUPS, PDF de secours). Imprimante et durées dans Réglages.
 - Étape 4 : ventes de fin de service (saisie ou import CSV tout-ou-rien, colonnes détectées par nom), pertes avec motif (sortie FEFO, périmés inclus), tableau de bord sur période (valeur du stock, CA, coût matière, marge brute, pertes en € et % du CA, profit, coût par recette et par boisson). Prix et coût sont figés à chaque vente.
-- Reste : photo de l'étiquette à la réception (souhaitable), registres HACCP et exports PDF, finitions.
+- Étape 5 : registres HACCP (relevés de température matin/soir par enceinte avec seuil selon le type, alerte et action corrective, refroidissement rapide +63→+10 °C en 2 h, plan de nettoyage quotidien/hebdomadaire/mensuel), liste du jour (relevés manquants, alertes sans action), export PDF des registres sur une période, fiche de traçabilité PDF d'un lot (amont et aval).
+- Reste : photo de l'étiquette à la réception (souhaitable), finitions (codes PIN, sauvegarde quotidienne, export CSV).
 
 Sauvegarde : copier `backend/data/haccp.db`.

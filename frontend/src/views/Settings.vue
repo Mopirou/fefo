@@ -29,6 +29,9 @@ onMounted(async () => {
             </label>
             <label>DLC max d'une préparation (jours)<input v-model.number="s.prep_dlc_max_days" type="number" min="1" max="30" /></label>
             <label>DLC après décongélation (heures, max 48)<input v-model.number="s.thaw_dlc_hours" type="number" min="1" max="48" /></label>
+            <label>Refroidissement rapide : durée max (min)<input v-model.number="s.cooling_max_minutes" type="number" min="10" max="600" /></label>
+            <label>Refroidissement rapide : température à atteindre (°C)<input v-model.number="s.cooling_target_temp" type="number" min="0" max="30" /></label>
+            <label class="full">Nom de l'établissement (en-tête des PDF)<input v-model="s.establishment" /></label>
             <p class="muted full">Valeurs par défaut du cahier des charges : 3 jours, 24 h. À aligner sur le plan de maîtrise sanitaire.</p>
             <div v-if="error" class="err">{{ error }}</div>
             <p v-if="message" class="ok full">{{ message }}</p>
