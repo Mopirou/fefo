@@ -42,6 +42,9 @@ module.exports = (db) => {
             if (/UNIQUE constraint failed: product\.ean/.test(err.message)) {
                 return res.status(409).json({ error: 'Un produit avec cet EAN existe deja' });
             }
+            if (/FOREIGN KEY constraint failed/.test(err.message)) {
+                return res.status(409).json({ error: 'Produit utilise par des lots: suppression impossible' });
+            }
             console.error(err);
             res.status(500).json({ error: 'Erreur serveur' });
         }

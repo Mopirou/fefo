@@ -25,6 +25,8 @@ cd frontend && npm run dev      # interface
 ```
 
 ## État
-Étape 1 (socle + catalogue produits) faite. Suite : scan/réception/stock, préparations, pertes/ventes/tableau de bord, registres HACCP, finitions (voir le cahier des charges).
+- Étape 1 : socle + catalogue produits.
+- Étape 2 : scan caméra (html5-qrcode, EAN-13/8 + QR) et favoris, réception (lot, DLC, température, conformité), stock par lot avec sortie FEFO, alertes (stock bas, DLC J-1 / J / périmé), inventaire rapide avec écart. Un EAN inconnu scanné ouvre la fiche produit pré-remplie. Un lot non conforme est enregistré mais jamais proposé en sortie.
+- Reste : photo de l'étiquette à la réception (souhaitable), préparations, pertes/ventes/tableau de bord, registres HACCP, finitions.
 
 Sauvegarde : copier `backend/data/haccp.db`.

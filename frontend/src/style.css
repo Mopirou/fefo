@@ -18,5 +18,9 @@ form { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; background: #f
 form label { display: flex; flex-direction: column; font-size: .8rem; gap: .2rem; }
 form .full { grid-column: 1 / -1; }
 form .actions { display: flex; gap: .5rem; }
+header { flex-wrap: wrap; }
+header button.primary { background: #fff; color: var(--c); }
+.ok { color: #166534; background: #dcfce7; border-radius: 8px; padding: .5rem .8rem; }
+.danger { color: #b91c1c; }
 .err { color: #b91c1c; grid-column: 1 / -1; font-size: .9rem; }
 @media (max-width: 520px) { form { grid-template-columns: 1fr; } }

@@ -15,4 +15,11 @@ export const api = {
     createProduct: (p) => call('POST', '/api/products', p),
     updateProduct: (id, p) => call('PUT', `/api/products/${id}`, p),
     deleteProduct: (id) => call('DELETE', `/api/products/${id}`),
+    productByEan: (ean) => call('GET', `/api/products/ean/${ean}`),
+    receive: (r) => call('POST', '/api/receipts', r),
+    stock: () => call('GET', '/api/stock'),
+    lots: (productId) => call('GET', `/api/stock/lots?product_id=${productId}`),
+    consume: (c) => call('POST', '/api/stock/consume', c),
+    alerts: () => call('GET', '/api/alerts'),
+    inventory: (counts) => call('POST', '/api/inventory', { counts }),
 };
