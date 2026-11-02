@@ -15,12 +15,12 @@ import Registers from './views/Registers.vue';
 import Login from './views/Login.vue';
 
 const TABS = [
-    ['stock', 'Stock', Stock], ['reception', 'Réception', Receiving], ['lots', 'Préparations', Batches],
-    ['recettes', 'Recettes', Recipes], ['ventes', 'Ventes', Sales], ['pertes', 'Pertes', Losses],
-    ['registres', 'Registres', Registers], ['bord', 'Tableau de bord', Dashboard], ['inventaire', 'Inventaire', Inventory],
+    ['bord', 'Tableau de bord', Dashboard], ['stock', 'Stock', Stock], ['reception', 'Réception', Receiving],
+    ['lots', 'Préparations', Batches], ['recettes', 'Recettes', Recipes], ['ventes', 'Ventes', Sales],
+    ['pertes', 'Pertes', Losses], ['registres', 'Registres', Registers], ['inventaire', 'Inventaire', Inventory],
     ['produits', 'Produits', Products], ['reglages', 'Réglages', Settings],
 ];
-const tab = ref('stock');
+const tab = ref('bord');
 const prefillEan = ref('');
 const session = ref({ ready: false, required: false, user: null, users: [] });
 
@@ -43,7 +43,7 @@ onBeforeUnmount(() => window.removeEventListener('auth-required', onAuthRequired
 <template>
     <template v-if="session.ready">
         <header v-if="!session.required || session.user">
-            <h1>HACCP</h1>
+            <h1>FEFO</h1>
             <button v-for="[key, label] in TABS" :key="key" :class="{ primary: tab === key }" @click="go(key)">{{ label }}</button>
             <button v-if="session.user" @click="logout">{{ session.user.name }} ⎋</button>
         </header>

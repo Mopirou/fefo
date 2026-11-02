@@ -18,8 +18,8 @@ require('./services/backup').startScheduler(db);
 // Camera access on the phone requires HTTPS (mkcert certificate, see README).
 if (fs.existsSync(keyFile) && fs.existsSync(certFile)) {
     https.createServer({ key: fs.readFileSync(keyFile), cert: fs.readFileSync(certFile) }, app)
-        .listen(PORT, '0.0.0.0', () => console.log(`HACCP: https://0.0.0.0:${PORT}`));
+        .listen(PORT, '0.0.0.0', () => console.log(`FEFO: https://0.0.0.0:${PORT}`));
 } else {
     console.warn('Certificats absents (certs/key.pem, certs/cert.pem): demarrage en HTTP, le scan camera ne marchera pas sur telephone.');
-    http.createServer(app).listen(PORT, '0.0.0.0', () => console.log(`HACCP: http://0.0.0.0:${PORT}`));
+    http.createServer(app).listen(PORT, '0.0.0.0', () => console.log(`FEFO: http://0.0.0.0:${PORT}`));
 }

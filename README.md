@@ -1,4 +1,4 @@
-# HACCP — outil interne stock + registres (V1)
+# FEFO — outil interne stock + registres (V1)
 
 Appli web servie par le PC du bar, utilisée depuis le téléphone via le Wi-Fi local. Architecture identique à Next-adventure-app (Express + Vue 3/Vite, `backend/` + `frontend/`), mais **base SQLite séparée** (`backend/data/haccp.db`, via `node:sqlite`), ports et certificats propres : aucun lien avec le jeu.
 

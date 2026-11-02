@@ -1,6 +1,6 @@
 {
-    "name": "HACCP",
-    "short_name": "HACCP",
+    "name": "FEFO",
+    "short_name": "FEFO",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",

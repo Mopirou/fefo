@@ -1,4 +1,4 @@
-# Builds the frontend (if needed) and starts the HACCP server (HTTPS when certs/ exists).
+# Builds the frontend (if needed) and starts the FEFO server (HTTPS when certs/ exists).
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
 
