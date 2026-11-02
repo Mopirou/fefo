@@ -4,6 +4,7 @@ async function call(method, url, body) {
         headers: body ? { 'Content-Type': 'application/json' } : undefined,
         body: body ? JSON.stringify(body) : undefined,
     });
+    if (res.status === 401 && !url.startsWith('/api/auth/login')) window.dispatchEvent(new Event('auth-required'));
     if (res.status === 204) return null;
     const data = await res.json().catch(() => ({}));
     // CSV import answers 422 with a line-by-line error list: let the caller show it.
@@ -53,6 +54,15 @@ export const api = {
     cleaning: (day) => call('GET', '/api/cleaning' + (day ? `?day=${day}` : '')),
     saveTask: (t) => (t.id ? call('PUT', `/api/cleaning/tasks/${t.id}`, t) : call('POST', '/api/cleaning/tasks', t)),
     checkTask: (id, day, done) => call('PUT', `/api/cleaning/tasks/${id}/check`, { day, done }),
+    authStatus: () => call('GET', '/api/auth/status'),
+    login: (user_id, pin) => call('POST', '/api/auth/login', { user_id, pin }),
+    logout: () => call('POST', '/api/auth/logout'),
+    users: () => call('GET', '/api/users'),
+    createUser: (u) => call('POST', '/api/users', u),
+    updateUser: (id, u) => call('PUT', `/api/users/${id}`, u),
+    backupStatus: () => call('GET', '/api/backup/status'),
+    runBackup: () => call('POST', '/api/backup/run'),
+    exportTables: () => call('GET', '/api/export'),
     settings: () => call('GET', '/api/settings'),
     saveSettings: (s) => call('PUT', '/api/settings', s),
     printers: () => call('GET', '/api/printers'),

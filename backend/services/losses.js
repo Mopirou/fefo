@@ -41,8 +41,8 @@ function createLoss(db, input, { now = new Date() } = {}) {
 
 function listLosses(db, { from, to } = {}) {
     return db.prepare(
-        `SELECT l.*, p.name, p.unit FROM loss l JOIN product p ON p.id = l.product_id
-         WHERE l.day >= ? AND l.day <= ? ORDER BY l.id DESC`
+        `SELECT l.*, p.name, p.unit, u.name AS user_name FROM loss l JOIN product p ON p.id = l.product_id
+         LEFT JOIN app_user u ON u.id = l.user_id WHERE l.day >= ? AND l.day <= ? ORDER BY l.id DESC`
     ).all(from || '0000-00-00', to || '9999-12-31');
 }
 

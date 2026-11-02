@@ -6,6 +6,8 @@ const SCHEMA = {
     thaw_dlc_hours: { default: 24, min: 1, max: 48, label: 'DLC apres decongelation (heures, max 48)' },
     cooling_max_minutes: { default: 120, min: 10, max: 600, label: 'Refroidissement rapide: duree max (minutes)' },
     cooling_target_temp: { default: 10, min: 0, max: 30, label: 'Refroidissement rapide: temperature a atteindre (C)' },
+    backup_dir: { default: '', label: 'Dossier de sauvegarde (vide = backend/data/backups)' },
+    backup_keep: { default: 30, min: 1, max: 365, label: 'Nombre de sauvegardes conservees' },
     establishment: { default: '', label: 'Nom de l\'etablissement (en-tete des exports)' },
     printer: { default: '', label: 'Imprimante d\'etiquettes' },
 };

@@ -61,7 +61,8 @@ function addReading(db, body, { now = new Date() } = {}) {
 
 function listReadings(db, { from, to } = {}) {
     return db.prepare(
-        `SELECT t.*, f.name AS fridge_name FROM temp_reading t JOIN fridge f ON f.id = t.fridge_id
+        `SELECT t.*, f.name AS fridge_name, u.name AS user_name FROM temp_reading t JOIN fridge f ON f.id = t.fridge_id
+         LEFT JOIN app_user u ON u.id = t.user_id
          WHERE t.day >= ? AND t.day <= ? ORDER BY t.day DESC, t.slot, f.name`
     ).all(from || '0000-00-00', to || '9999-12-31');
 }
@@ -104,7 +105,8 @@ function addCooling(db, body) {
 }
 
 function listCooling(db, { from, to } = {}) {
-    return db.prepare('SELECT * FROM cooling_record WHERE day >= ? AND day <= ? ORDER BY start_at DESC')
+    return db.prepare(`SELECT c.*, u.name AS user_name FROM cooling_record c LEFT JOIN app_user u ON u.id = c.user_id
+         WHERE c.day >= ? AND c.day <= ? ORDER BY c.start_at DESC`)
         .all(from || '0000-00-00', to || '9999-12-31');
 }
 

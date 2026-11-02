@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { DatabaseSync } = require('node:sqlite');
+const { currentUserId } = require('../utils/context');
 
 const MIGRATIONS_DIR = path.join(__dirname, '..', 'migrations');
 
@@ -28,6 +29,7 @@ function openDb(filename = path.join(__dirname, '..', 'data', 'haccp.db')) {
     const db = new DatabaseSync(filename);
     db.exec('PRAGMA journal_mode = WAL');
     db.exec('PRAGMA foreign_keys = ON');
+    db.function('current_user_id', () => currentUserId());
     migrate(db);
     return db;
 }

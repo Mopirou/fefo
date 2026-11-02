@@ -131,24 +131,26 @@ function registerPdf(db, { from, to }) {
     section(doc, 'Releves de temperature des enceintes');
     table(doc, [
         { label: 'Date', width: 60, get: r => fr(r.day) },
-        { label: 'Enceinte', width: 110, get: r => r.fridge_name },
-        { label: 'Creneau', width: 50, get: r => r.slot },
+        { label: 'Enceinte', width: 100, get: r => r.fridge_name },
+        { label: 'Creneau', width: 45, get: r => r.slot },
         { label: 'Releve', width: 50, get: r => `${r.value} °C` },
-        { label: 'Seuil', width: 50, get: r => `${r.max_temp} °C` },
+        { label: 'Seuil', width: 45, get: r => `${r.max_temp} °C` },
         { label: 'Statut', width: 50, get: r => (r.alert ? 'ALERTE' : 'OK') },
-        { label: 'Action corrective', width: 145, get: r => r.action || (r.alert ? 'NON RENSEIGNEE' : '') },
+        { label: 'Saisi par', width: 55, get: r => r.user_name || '' },
+        { label: 'Action corrective', width: 110, get: r => r.action || (r.alert ? 'NON RENSEIGNEE' : '') },
     ], readings.map(r => ({ ...r, _alert: !!r.alert })));
 
     const cooling = haccp.listCooling(db, { from: start, to: end }).reverse();
     section(doc, 'Refroidissement rapide (+63 °C a +10 °C en moins de 2 h)');
     table(doc, [
         { label: 'Date', width: 60, get: r => fr(r.day) },
-        { label: 'Preparation', width: 120, get: r => r.label },
-        { label: 'Debut', width: 65, get: r => `${hm(r.start_at)} / ${r.start_temp} °C` },
-        { label: 'Fin', width: 65, get: r => `${hm(r.end_at)} / ${r.end_temp} °C` },
+        { label: 'Preparation', width: 100, get: r => r.label },
+        { label: 'Debut', width: 60, get: r => `${hm(r.start_at)} / ${r.start_temp} °C` },
+        { label: 'Fin', width: 60, get: r => `${hm(r.end_at)} / ${r.end_temp} °C` },
         { label: 'Duree', width: 45, get: r => `${r.minutes} min` },
         { label: 'Statut', width: 45, get: r => (r.alert ? 'ALERTE' : 'OK') },
-        { label: 'Action corrective', width: 115, get: r => r.action || (r.alert ? 'NON RENSEIGNEE' : '') },
+        { label: 'Saisi par', width: 55, get: r => r.user_name || '' },
+        { label: 'Action corrective', width: 90, get: r => r.action || (r.alert ? 'NON RENSEIGNEE' : '') },
     ], cooling.map(r => ({ ...r, _alert: !!r.alert })));
 
     section(doc, 'Plan de nettoyage');

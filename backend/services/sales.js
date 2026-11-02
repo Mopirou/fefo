@@ -115,8 +115,8 @@ function importSalesCsv(db, { csv, mapping, date }, opts) {
 
 function listSales(db, { from, to } = {}) {
     return db.prepare(
-        `SELECT s.*, p.name, p.unit FROM sale s JOIN product p ON p.id = s.product_id
-         WHERE s.day >= ? AND s.day <= ? ORDER BY s.day DESC, s.id DESC`
+        `SELECT s.*, p.name, p.unit, u.name AS user_name FROM sale s JOIN product p ON p.id = s.product_id
+         LEFT JOIN app_user u ON u.id = s.user_id WHERE s.day >= ? AND s.day <= ? ORDER BY s.day DESC, s.id DESC`
     ).all(from || '0000-00-00', to || '9999-12-31');
 }
 

@@ -13,6 +13,7 @@ const certFile = path.join(CERT_DIR, 'cert.pem');
 
 const db = openDb(process.env.DB_FILE || undefined);
 const app = createApp(db);
+require('./services/backup').startScheduler(db);
 
 // Camera access on the phone requires HTTPS (mkcert certificate, see README).
 if (fs.existsSync(keyFile) && fs.existsSync(certFile)) {

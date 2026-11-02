@@ -30,6 +30,7 @@ cd frontend && npm run dev      # interface
 - Étape 3 : recettes, fabrication de lots (ingrédients déduits en FEFO, lots sources enregistrés, DLC = +3 j max sauf justification), congélation (avant la DLC) et décongélation (nouvelle DLC, recongélation interdite), étiquette (impression directe via le spouleur Windows ou CUPS, PDF de secours). Imprimante et durées dans Réglages.
 - Étape 4 : ventes de fin de service (saisie ou import CSV tout-ou-rien, colonnes détectées par nom), pertes avec motif (sortie FEFO, périmés inclus), tableau de bord sur période (valeur du stock, CA, coût matière, marge brute, pertes en € et % du CA, profit, coût par recette et par boisson). Prix et coût sont figés à chaque vente.
 - Étape 5 : registres HACCP (relevés de température matin/soir par enceinte avec seuil selon le type, alerte et action corrective, refroidissement rapide +63→+10 °C en 2 h, plan de nettoyage quotidien/hebdomadaire/mensuel), liste du jour (relevés manquants, alertes sans action), export PDF des registres sur une période, fiche de traçabilité PDF d'un lot (amont et aval).
-- Reste : photo de l'étiquette à la réception (souhaitable), finitions (codes PIN, sauvegarde quotidienne, export CSV).
+- Étape 6 : comptes à code PIN (chaque saisie attribuée à son auteur dans les registres PDF ; l'appli reste ouverte tant qu'aucun compte n'existe ; verrouillage 1 min après 5 PIN faux), sauvegarde quotidienne automatique vers un dossier réglable avec 30 versions, export CSV de chaque table, checklist de la semaine de test dans `docs/TEST_SEMAINE.md`.
+- Reste : photo de l'étiquette à la réception (souhaitable), à confirmer après la semaine de test.
 
 Sauvegarde : copier `backend/data/haccp.db`.
